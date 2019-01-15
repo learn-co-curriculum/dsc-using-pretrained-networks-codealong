@@ -1,5 +1,5 @@
 
-# Using Pretrained Networks - Lab
+# Using Pretrained Networks - Codealong
 
 ## Introduction
 
