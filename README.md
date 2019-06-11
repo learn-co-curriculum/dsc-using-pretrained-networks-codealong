@@ -3,7 +3,7 @@
 
 ## Introduction
 
-In this lab, you'll further practice the ideas behind CNN and adapting pretrained models as described in previous lessons. (As you may have guessed, our problem at hand is classifying Santa or Not Santa!). With that, let's have at it! 
+In this lab, you'll further practice the ideas behind CNN and adapting pretrained models as described in previous lessons. You'll once again work on the Santa or Not Santa problem scenario you've seen before!
 
 ## Objectives
 
@@ -260,7 +260,7 @@ plt.show()
 ![png](index_files/index_12_1.png)
 
 
-Using VGG19 we were able to get test set performance up to almost 92%. Quite impressive!
+Using VGG19 you're able to get test set performance up to almost 92%. Quite impressive!
 
 
 ```python
@@ -275,7 +275,7 @@ startp = datetime.datetime.now() #Set new start time for new process method
 
 ## Feature Extraction: Method 2
 
-Here, we will investigate another method for performming feature extraction which will seque naturally into methods for fine tuning a pretrained network. This method of feature extraction is more costly then the previous methodology but has some added benefits in that it will allow us to also perform our usual data augmentation techniques.  
+Here, you'll see another method for performing feature extraction which will segue naturally into methods for fine tuning a pretrained network. This method of feature extraction is more costly then the previous methodology but has some added benefits in that it will allow us to also perform our usual data augmentation techniques.  
 
 Here's an overview of the process:
 * Add the pretrained model as the first layer
@@ -283,7 +283,7 @@ Here's an overview of the process:
 * Freeze the convolutional base
 * Train the model
 
-The new part of this process which you are unfamiliar with is freezing layers. This means that all of the weights associated with that layer(s) will remain unchanged through the optimization process. Freezing the base is important as we wish to preserve the features encoded in this CNN base.
+The new part of this process which you have yet to see is freezing layers. This means that all of the weights associated with that layer(s) will remain unchanged through the optimization process. Freezing the base is important as you wish to preserve the features encoded in this CNN base. Without this, the volatile gradients will quickly erase the useful features of the pretrained model.
 
 
 ```python
@@ -296,7 +296,7 @@ model.add(layers.Dense(1, activation='sigmoid'))
 
 ## Freezing
 
-Now that we've designed the model architecture, we can go ahead and freeze the base. First, let's look at how to check whether layers are frozen or not:
+Now that you've designed the model architecture, you'll freeze the base. With this, learning to check whether layers are frozen or not is a valuable skill.
 
 
 ```python
@@ -315,14 +315,14 @@ print(len(model.trainable_weights))
     36
 
 
-And now let's freeze our cnn base layer:
+Freezing a layer is very straightforward: set the `trainable` attribute to False.
 
 
 ```python
 cnn_base.trainable = False
 ```
 
-and do a quick sanity check:
+A quick sanity check is also prudent and verifies that the base model is indeed frozen:
 
 
 ```python
@@ -343,7 +343,7 @@ print(len(model.trainable_weights))
 
 From there, training the model happens as usual.   
 
-We define our training-validation-test sets (now with data augmentation; the advantage of this method of feature-extraction).
+Define the training-validation-test sets (now with data augmentation; the advantage of this method of feature-extraction).
 
 
 ```python
@@ -456,7 +456,7 @@ plt.show()
 ![png](index_files/index_29_1.png)
 
 
-Comment: since both training and validation accuracy continue to fall in these graphs we would normally train for more epochs. To keep things running smoothly though, we won't do that here.
+> Since both training and validation accuracy continue to fall in these graphs you would normally train for more epochs. For time's sake, this is not demonstrated, but whenever training AND VALIDATION accuracy continue to drop, then the model is probably underfit and can benefit from additional epochs.
 
 
 ```python
@@ -474,15 +474,15 @@ startp = datetime.datetime.now() #Set new start time for new process method
 
 ## Fine Tuning
 
-Fine tuning starts with the same procedure that we have demonstrated for feature extraction. From there, we further fine-tune the weights of the most abstract layers of the convolutional base. 
+Fine tuning starts with the same procedure that as that for feature extraction. From there, you can further fine-tune the weights of the most abstract layers of the convolutional base. 
 
-When fine-tuning these layers from the convolutional base, it is essential that you first freeze the entire convolutional base and train a classifier as we discussed with the feature engineering technique above. Without this, when gradient descent is initialized to optimize our loss function, we would be apt to loose any significant patterns learned by the original classifier that we are adapting to our current situation. As a result, we must first tune the fully-connected classifier that sits on top of the pretrained convolutional base. From there, our model should have a relatively strong accuracy and we can fine tune the weights of the last few layers of the convolutional base. Unfreezing initial layers of the convolutional base is not apt to produce substantial gains as these early layers typically learn simple representations such as colors and edges which are typically useful in all forms of image recognition, regardless of application.   
+When fine-tuning these layers from the convolutional base, it is essential that you first freeze the entire convolutional base and train a classifier as we discussed with the feature engineering technique above. Without this, when gradient descent is initialized to optimize our loss function, you're apt to loose any significant patterns learned by the original classifier that you're adapting to the current situation. As a result, you must first tune the fully-connected classifier that sits on top of the pretrained convolutional base. From there, the model should have a relatively strong accuracy and you can fine tune the weights of the last few layers of the convolutional base. Unfreezing initial layers of the convolutional base will typically not produce substantial gains as these early layers learn simple representations such as colors and edges which are useful in all forms of image recognition, regardless of application.   
 
-With that, let's continue fine-tuning our model.
+With that, let's continue fine-tuning the model.
 
 **Warning: Fine tuning can be a resource intensive procedure.**
 
-Recall that we have our overall model:
+Recall that model's architecture:
 
 
 ```python
@@ -510,7 +510,7 @@ model.summary()
       'Discrepancy between trainable weights and collected trainable'
 
 
-And we can also further investigate our borrowed convolutional base:
+And you can also further investigate the borrowed convolutional base:
 
 
 ```python
@@ -571,16 +571,16 @@ cnn_base.summary()
 
 
 ## Important Reminders on Fine Tuning: Feature Extraction Must Come First!
-Up till now, we have frozen the entire convolutional base. Again, it cannot be stressed enough how important this is before fine tuning the weights of the later layers of this base. Without training a classifier on the frozen base first, there will be too much noise in the model and initial epochs will overwrite any useful representations encoded in the pretrained model. That said, now that we have tuned a classifier to the frozen base, we can now unfreeze a few of the deeper layers from this base and further fine tune them to our problem scenario. In practice, this is apt to be particularly helpful where adapted models span new domain categories. For example, if the pretrained model is on cats and dogs and this is adapted to a problem specific to cats (a very relatively similar domain) there is apt to be little performance gain from fine tuning. On the other hand, if the problem domain is more substantially different, additional gains are more likely in adjusting these more abstract layers of the convolutional base. With that, let's take a look at how to unfreeze and fine tune these later layers.
+Up till now, you have frozen the entire convolutional base. Again, it cannot be stressed enough how important this is before fine tuning the weights of the later layers of this base. Without training a classifier on the frozen base first, there will be too much noise in the model and initial epochs will overwrite any useful representations encoded in the pretrained model. That said, now that you have tuned a classifier to the frozen base, you can now unfreeze a few of the deeper layers from this base and further fine tune them to our problem scenario. In practice, this is apt to be particularly helpful where adapted models span new domain categories. For example, if the pretrained model is on cats and dogs and this is adapted to a problem specific to cats (a very relatively similar domain) there is apt to be little performance gain from fine tuning. On the other hand, if the problem domain is substantially different, additional gains are more likely in adjusting these more abstract layers of the convolutional base. With that, here's how to unfreeze and fine tune these later layers.
 
-Previously, we saw how to freeze a layer. Similarly, we will now unfreeze our base:
+First, unfreeze the base.
 
 
 ```python
 cnn_base.trainable = True
 ```
 
-Then, we can refreeze all of them up to a specific layer. Here we're unfreezing the final *block* of layers.
+Then, you can refreeze all layers up to a specific layer. Here you're unfreezing the final *block* of layers.  
 (You will see diminishing returns if you continue to unfreeze additional layers.)
 
 
@@ -596,7 +596,7 @@ for layer in cnn_base.layers:
         layer.trainable = False
 ```
 
-Finally, we must recompile our model before performing fitting.
+Finally, you must recompile our model before performing fitting.
 
 
 ```python
@@ -605,7 +605,7 @@ model.compile(loss='binary_crossentropy',
                       metrics=['accuracy'])
 ```
 
-Afterwards, we can then fit the model as usual.
+Afterwards, you can then fit the model as usual.
 
 
 ```python
@@ -668,7 +668,7 @@ plt.show()
 
 ## Final Evaluation
 
-As usual, let's conclude with a final evaluation on the test set.
+As usual, conclude with a final evaluation on the test set.
 
 
 ```python
