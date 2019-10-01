@@ -399,6 +399,7 @@ And fit the model:
 
 
 ```python
+# ⏰ This cell may take several minutes to run
 history = model.fit_generator(
               train_generator,
               steps_per_epoch= 27,
@@ -609,6 +610,7 @@ Afterwards, you can then fit the model as usual.
 
 
 ```python
+# ⏰ This cell may take several minutes to run
 history = model.fit_generator(
               train_generator,
               steps_per_epoch= 27,
@@ -672,6 +674,8 @@ As usual, conclude with a final evaluation on the test set.
 
 
 ```python
+# ⏰ This cell may take several minutes to run
+
 # test_generator = test_datagen.flow_from_directory(
 #         test_dir,
 #         target_size=(150, 150),
