@@ -3,13 +3,15 @@
 
 ## Introduction
 
-In this lab, you'll further practice the ideas behind CNN and adapting pretrained models as described in previous lessons. You'll once again work on the Santa or Not Santa problem scenario you've seen before!
+In this lesson, you'll further practice the ideas behind CNN and adapting pretrained models as described in previous lessons. You'll once again work on the Santa or Not Santa problem scenario you've seen before!
 
 ## Objectives
 
 You will be able to:
-* Use Keras to adapt a pretrained CNN
-* Implement feature engineering and fine tuning on a pretrained model
+
+- Explain what "freezing" and "unfreezing" a layer means in a neural network 
+- Implement feature engineering and fine tuning on a pre-trained model 
+- Use Keras to adapt a pretrained CNN 
 
 
 ```python
@@ -23,6 +25,7 @@ start = datetime.datetime.now()
 import os, shutil
 import time
 import matplotlib.pyplot as plt
+%matplotlib inline
 import scipy
 import numpy as np
 from PIL import Image
@@ -55,9 +58,9 @@ batch_size = 10
 
 ```python
 from keras.applications import VGG19
-cnn_base = VGG19(weights='imagenet',
-                  include_top=False,
-                  input_shape=(64, 64, 3))
+cnn_base = VGG19(weights='imagenet', 
+                 include_top=False, 
+                 input_shape=(64, 64, 3))
 ```
 
 
@@ -140,7 +143,7 @@ def extract_features(directory, sample_amount):
 
 
 ```python
-# you should be able to divide sample_amount by batch_size!!
+# You should be able to divide sample_amount by batch_size
 train_features, train_labels = extract_features(train_folder, 540) 
 validation_features, validation_labels = extract_features(val_folder, 200) 
 test_features, test_labels = extract_features(test_folder, 180)
@@ -162,12 +165,13 @@ from keras import layers
 from keras import optimizers
 
 model = models.Sequential()
-model.add(layers.Dense(256, activation='relu', input_dim=2 * 2 * 512))
+model.add(layers.Dense(256, activation='relu', input_dim=2*2*512))
 model.add(layers.Dense(1, activation='sigmoid'))
 
 model.compile(optimizer=optimizers.RMSprop(lr=1e-4),
               loss='binary_crossentropy',
               metrics=['acc'])
+
 history = model.fit(train_features, train_labels,
                     epochs=20,
                     batch_size=10,
@@ -260,14 +264,14 @@ plt.show()
 ![png](index_files/index_12_1.png)
 
 
-Using VGG19 you're able to get test set performance up to almost 92%. Quite impressive!
+Using VGG-19 you're able to get test set performance up to almost 92%. Quite impressive!
 
 
 ```python
 end = datetime.datetime.now()
 elapsed = end - start
 print('Feature extraction method 1 took {} to execute.'.format(elapsed))
-startp = datetime.datetime.now() #Set new start time for new process method
+startp = datetime.datetime.now() # Set new start time for new process method
 ```
 
     Feature extraction method 1 took 0:01:14.165131 to execute.
@@ -275,7 +279,7 @@ startp = datetime.datetime.now() #Set new start time for new process method
 
 ## Feature Extraction: Method 2
 
-Here, you'll see another method for performing feature extraction which will segue naturally into methods for fine tuning a pretrained network. This method of feature extraction is more costly then the previous methodology but has some added benefits in that it will allow us to also perform our usual data augmentation techniques.  
+Here, you'll see another method for performing feature extraction which will segue naturally into methods for fine tuning a pretrained network. This method of feature extraction is more costly than the previous methodology but has some added benefits in that it will allow us to also perform our usual data augmentation techniques.  
 
 Here's an overview of the process:
 * Add the pretrained model as the first layer
@@ -283,7 +287,7 @@ Here's an overview of the process:
 * Freeze the convolutional base
 * Train the model
 
-The new part of this process which you have yet to see is freezing layers. This means that all of the weights associated with that layer(s) will remain unchanged through the optimization process. Freezing the base is important as you wish to preserve the features encoded in this CNN base. Without this, the volatile gradients will quickly erase the useful features of the pretrained model.
+The new part of this process which you have yet to see is freezing layers. This means that all of the weights associated with that layer(s) will remain unchanged through the optimization process. Freezing the base is important as you wish to preserve the features encoded in this CNN base. Without this, the volatile gradients will quickly erase the useful features of the pretrained model. 
 
 
 ```python
@@ -300,11 +304,11 @@ Now that you've designed the model architecture, you'll freeze the base. With th
 
 
 ```python
-#You can check whether a layer is trainable (or alter its setting) through the layer.trainable attribute:
+# You can check whether a layer is trainable (or alter its setting) through the layer.trainable attribute
 for layer in model.layers:
     print(layer.name, layer.trainable)
     
-#Similarly, we can check how many trainable weights are in the model:
+# Similarly, you can check how many trainable weights are in the model
 print(len(model.trainable_weights))
 ```
 
@@ -326,11 +330,11 @@ A quick sanity check is also prudent and verifies that the base model is indeed 
 
 
 ```python
-#You can check whether a layer is trainable (or alter its setting) through the layer.trainable attribute:
+# You can check whether a layer is trainable (or alter its setting) through the layer.trainable attribute
 for layer in model.layers:
     print(layer.name, layer.trainable)
     
-#Similarly, we can check how many trainable weights are in the model:
+# Similarly, we can check how many trainable weights are in the model
 print(len(model.trainable_weights))
 ```
 
@@ -347,36 +351,32 @@ Define the training-validation-test sets (now with data augmentation; the advant
 
 
 ```python
-# get all the data in the directory split/train (542 images), and reshape them
-train_datagen = ImageDataGenerator(
-      rescale=1./255,
-      rotation_range=40,
-      width_shift_range=0.2,
-      height_shift_range=0.2,
-      shear_range=0.2,
-      zoom_range=0.2,
-      horizontal_flip=True,
-      fill_mode='nearest')
+# Get all the data in the directory split/train (542 images), and reshape them
+train_datagen = ImageDataGenerator(rescale=1./255, 
+                                   rotation_range=40, 
+                                   width_shift_range=0.2, 
+                                   height_shift_range=0.2, 
+                                   shear_range=0.2, 
+                                   zoom_range=0.2, 
+                                   horizontal_flip=True, 
+                                   fill_mode='nearest')
 
-train_generator = train_datagen.flow_from_directory(
-        train_folder, 
-        target_size=(64, 64), 
-        batch_size= 20,
-        class_mode= 'binary') 
+train_generator = train_datagen.flow_from_directory(train_folder,  
+                                                    target_size=(64, 64),  
+                                                    batch_size= 20, 
+                                                    class_mode= 'binary') 
 
-# get all the data in the directory split/validation (200 images), and reshape them
-val_generator = ImageDataGenerator(rescale=1./255).flow_from_directory(
-        val_folder, 
-        target_size=(64, 64), 
-        batch_size = 20,
-        class_mode= 'binary')
+# Get all the data in the directory split/validation (200 images), and reshape them
+val_generator = ImageDataGenerator(rescale=1./255).flow_from_directory(val_folder,  
+                                                                       target_size=(64, 64),  
+                                                                       batch_size=20, 
+                                                                       class_mode='binary')
 
-# get all the data in the directory split/test (180 images), and reshape them
-test_generator = ImageDataGenerator(rescale=1./255).flow_from_directory(
-        test_folder, 
-        target_size=(64, 64), 
-        batch_size = 180,
-        class_mode= 'binary')
+# Get all the data in the directory split/test (180 images), and reshape them
+test_generator = ImageDataGenerator(rescale=1./255).flow_from_directory(test_folder,  
+                                                                        target_size=(64, 64), 
+                                                                        batch_size=180,
+                                                                        class_mode='binary')
 
 test_images, test_labels = next(test_generator)
 ```
@@ -400,12 +400,11 @@ And fit the model:
 
 ```python
 # ⏰ This cell may take several minutes to run
-history = model.fit_generator(
-              train_generator,
-              steps_per_epoch= 27,
-              epochs = 10,
-              validation_data = val_generator,
-              validation_steps = 10)
+history = model.fit_generator(train_generator,
+                              steps_per_epoch=27,
+                              epochs=10,
+                              validation_data=val_generator,
+                              validation_steps=10)
 ```
 
     Epoch 1/10
@@ -457,7 +456,7 @@ plt.show()
 ![png](index_files/index_29_1.png)
 
 
-> Since both training and validation accuracy continue to fall in these graphs you would normally train for more epochs. For time's sake, this is not demonstrated, but whenever training AND VALIDATION accuracy continue to drop, then the model is probably underfit and can benefit from additional epochs.
+> Since both training and validation accuracy continue to fall in these graphs you would normally train for more epochs. To conserve time, this is not demonstrated, but whenever training AND VALIDATION accuracy continue to drop, then the model is probably underfit and can benefit from additional epochs.
 
 
 ```python
@@ -466,7 +465,7 @@ elapsed = end - startp
 print('Feature extraction method 2 took {} to execute.'.format(elapsed))
 elapsed = end - start
 print('Total running time of notebook thus far: {}'.format(elapsed))
-startp = datetime.datetime.now() #Set new start time for new process method
+startp = datetime.datetime.now() # Set new start time for new process method
 ```
 
     Feature extraction method 2 took 0:18:45.504135 to execute.
@@ -475,15 +474,15 @@ startp = datetime.datetime.now() #Set new start time for new process method
 
 ## Fine Tuning
 
-Fine tuning starts with the same procedure that as that for feature extraction. From there, you can further fine-tune the weights of the most abstract layers of the convolutional base. 
+Fine tuning starts with the same procedure as that for feature extraction. From there, you can further fine tune the weights of the most abstract layers of the convolutional base. 
 
-When fine-tuning these layers from the convolutional base, it is essential that you first freeze the entire convolutional base and train a classifier as we discussed with the feature engineering technique above. Without this, when gradient descent is initialized to optimize our loss function, you're apt to loose any significant patterns learned by the original classifier that you're adapting to the current situation. As a result, you must first tune the fully-connected classifier that sits on top of the pretrained convolutional base. From there, the model should have a relatively strong accuracy and you can fine tune the weights of the last few layers of the convolutional base. Unfreezing initial layers of the convolutional base will typically not produce substantial gains as these early layers learn simple representations such as colors and edges which are useful in all forms of image recognition, regardless of application.   
+When fine tuning these layers from the convolutional base, it is essential that you first freeze the entire convolutional base and train a classifier as we discussed with the feature engineering technique above. Without this, when gradient descent is initialized to optimize our loss function, you're apt to loose any significant patterns learned by the original classifier that you're adapting to the current situation. As a result, you must first tune the fully connected classifier that sits on top of the pretrained convolutional base. From there, the model should have a relatively strong accuracy and you can fine tune the weights of the last few layers of the convolutional base. Unfreezing initial layers of the convolutional base will typically not produce substantial gains as these early layers learn simple representations such as colors and edges which are useful in all forms of image recognition, regardless of application.   
 
-With that, let's continue fine-tuning the model.
+With that, let's continue fine tuning the model.
 
-**Warning: Fine tuning can be a resource intensive procedure.**
+**Warning: Fine tuning can be a resource intensive procedure.** 
 
-Recall that model's architecture:
+Recall that model's architecture: 
 
 
 ```python
@@ -572,9 +571,9 @@ cnn_base.summary()
 
 
 ## Important Reminders on Fine Tuning: Feature Extraction Must Come First!
-Up till now, you have frozen the entire convolutional base. Again, it cannot be stressed enough how important this is before fine tuning the weights of the later layers of this base. Without training a classifier on the frozen base first, there will be too much noise in the model and initial epochs will overwrite any useful representations encoded in the pretrained model. That said, now that you have tuned a classifier to the frozen base, you can now unfreeze a few of the deeper layers from this base and further fine tune them to our problem scenario. In practice, this is apt to be particularly helpful where adapted models span new domain categories. For example, if the pretrained model is on cats and dogs and this is adapted to a problem specific to cats (a very relatively similar domain) there is apt to be little performance gain from fine tuning. On the other hand, if the problem domain is substantially different, additional gains are more likely in adjusting these more abstract layers of the convolutional base. With that, here's how to unfreeze and fine tune these later layers.
+Up to now, you have frozen the entire convolutional base. Again, it cannot be stressed enough how important this is before fine tuning the weights of the later layers of this base. Without training a classifier on the frozen base first, there will be too much noise in the model and initial epochs will overwrite any useful representations encoded in the pretrained model. That said, now that you have tuned a classifier to the frozen base, you can now unfreeze a few of the deeper layers from this base and further fine tune them to our problem scenario. In practice, this is apt to be particularly helpful where adapted models span new domain categories. For example, if the pretrained model is on cats and dogs and this is adapted to a problem specific to cats (a very relatively similar domain) there is apt to be little performance gain from fine tuning. On the other hand, if the problem domain is substantially different, additional gains are more likely in adjusting these more abstract layers of the convolutional base. With that, here's how to unfreeze and fine tune these later layers. 
 
-First, unfreeze the base.
+First, unfreeze the base. 
 
 
 ```python
@@ -582,7 +581,7 @@ cnn_base.trainable = True
 ```
 
 Then, you can refreeze all layers up to a specific layer. Here you're unfreezing the final *block* of layers.  
-(You will see diminishing returns if you continue to unfreeze additional layers.)
+(You will see diminishing returns if you continue to unfreeze additional layers.) 
 
 
 ```python
@@ -597,26 +596,25 @@ for layer in cnn_base.layers:
         layer.trainable = False
 ```
 
-Finally, you must recompile our model before performing fitting.
+Finally, we must recompile our model before fitting.
 
 
 ```python
-model.compile(loss='binary_crossentropy',
-                      optimizer=optimizers.RMSprop(lr=1e-4),
-                      metrics=['accuracy'])
+model.compile(loss='binary_crossentropy', 
+              optimizer=optimizers.RMSprop(lr=1e-4), 
+              metrics=['accuracy'])
 ```
 
-Afterwards, you can then fit the model as usual.
+Afterwards, we can then fit the model as usual.
 
 
 ```python
 # ⏰ This cell may take several minutes to run
-history = model.fit_generator(
-              train_generator,
-              steps_per_epoch= 27,
-              epochs = 10,
-              validation_data = val_generator,
-              validation_steps = 10)
+history = model.fit_generator(train_generator,
+                              steps_per_epoch=27,
+                              epochs=10,
+                              validation_data=val_generator,
+                              validation_steps=10)
 ```
 
     Epoch 1/10
@@ -661,11 +659,11 @@ plt.show()
 ```
 
 
-![png](index_files/index_46_0.png)
+![png](index_files/index_44_0.png)
 
 
 
-![png](index_files/index_46_1.png)
+![png](index_files/index_44_1.png)
 
 
 ## Final Evaluation
@@ -676,11 +674,11 @@ As usual, conclude with a final evaluation on the test set.
 ```python
 # ⏰ This cell may take several minutes to run
 
-# test_generator = test_datagen.flow_from_directory(
-#         test_dir,
-#         target_size=(150, 150),
-#         batch_size=20,
-#         class_mode='binary')
+# test_generator = test_datagen.flow_from_directory(test_dir,
+#                                                   target_size=(150, 150),
+#                                                   batch_size=20,
+#                                                   class_mode='binary')
+
 test_loss, test_acc = model.evaluate_generator(test_generator, steps=50)
 print('test acc:', test_acc)
 ```
@@ -688,7 +686,7 @@ print('test acc:', test_acc)
     test acc: 0.9055555462837219
 
 
-The model with fine-tuning seems to have similar results, but was much more costly to compute in terms of time.
+The model with fine-tuning seems to have similar results, but was much more costly to compute in terms of time. 
 
 ## Summary
 
