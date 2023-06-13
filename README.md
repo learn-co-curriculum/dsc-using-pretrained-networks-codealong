@@ -648,8 +648,8 @@ history = model.fit_generator(train_generator,
 
 
 ```python
-train_acc = history.history['acc']
-val_acc = history.history['val_acc']
+train_acc = history.history['accuracy']
+val_acc = history.history['val_accuracy']
 train_loss = history.history['loss']
 val_loss = history.history['val_loss']
 epch = range(1, len(train_acc) + 1)
