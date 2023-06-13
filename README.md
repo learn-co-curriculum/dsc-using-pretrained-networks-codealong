@@ -1,4 +1,3 @@
-
 # Using Pretrained Networks - Codealong
 
 ## Introduction
@@ -30,7 +29,7 @@ import scipy
 import numpy as np
 from PIL import Image
 from scipy import ndimage
-from keras.preprocessing.image import ImageDataGenerator, array_to_img
+from keras.preprocessing.image import ImageDataGenerator
 
 np.random.seed(123)
 ```
@@ -257,11 +256,15 @@ plt.show()
 ```
 
 
+    
 ![png](index_files/index_12_0.png)
+    
 
 
 
+    
 ![png](index_files/index_12_1.png)
+    
 
 
 Using VGG-19 you're able to get test set performance up to almost 92%. Quite impressive!
@@ -449,11 +452,15 @@ plt.show()
 ```
 
 
+    
 ![png](index_files/index_29_0.png)
+    
 
 
 
+    
 ![png](index_files/index_29_1.png)
+    
 
 
 > Since both training and validation accuracy continue to fall in these graphs you would normally train for more epochs. To conserve time, this is not demonstrated, but whenever training AND VALIDATION accuracy continue to drop, then the model is probably underfit and can benefit from additional epochs.
@@ -659,11 +666,15 @@ plt.show()
 ```
 
 
+    
 ![png](index_files/index_44_0.png)
+    
 
 
 
+    
 ![png](index_files/index_44_1.png)
+    
 
 
 ## Final Evaluation
