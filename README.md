@@ -167,7 +167,7 @@ model = models.Sequential()
 model.add(layers.Dense(256, activation='relu', input_dim=2*2*512))
 model.add(layers.Dense(1, activation='sigmoid'))
 
-model.compile(optimizer=optimizers.RMSprop(lr=1e-4),
+model.compile(optimizer=optimizers.RMSprop(learning_rate=1e-4),
               loss='binary_crossentropy',
               metrics=['acc'])
 
@@ -394,7 +394,7 @@ Compile the model as usual:
 
 ```python
 model.compile(loss='binary_crossentropy',
-              optimizer=optimizers.RMSprop(lr=2e-5),
+              optimizer=optimizers.RMSprop(learning_rate=2e-5),
               metrics=['acc'])
 ```
 
@@ -403,7 +403,7 @@ And fit the model:
 
 ```python
 # ⏰ This cell may take several minutes to run
-history = model.fit_generator(train_generator,
+history = model.fit(train_generator,
                               steps_per_epoch=27,
                               epochs=10,
                               validation_data=val_generator,
@@ -608,7 +608,7 @@ Finally, we must recompile our model before fitting.
 
 ```python
 model.compile(loss='binary_crossentropy', 
-              optimizer=optimizers.RMSprop(lr=1e-4), 
+              optimizer=optimizers.RMSprop(learning_rate=1e-4), 
               metrics=['accuracy'])
 ```
 
@@ -617,7 +617,7 @@ Afterwards, we can then fit the model as usual.
 
 ```python
 # ⏰ This cell may take several minutes to run
-history = model.fit_generator(train_generator,
+history = model.fit(train_generator,
                               steps_per_epoch=27,
                               epochs=10,
                               validation_data=val_generator,
@@ -690,7 +690,7 @@ As usual, conclude with a final evaluation on the test set.
 #                                                   batch_size=20,
 #                                                   class_mode='binary')
 
-test_loss, test_acc = model.evaluate_generator(test_generator, steps=50)
+test_loss, test_acc = model.evaluate(test_generator, steps=50)
 print('test acc:', test_acc)
 ```
 
